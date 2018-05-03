@@ -267,6 +267,12 @@ if ( ! class_exists( 'DeveloperShareButtons' ) ) {
 				// %2$s = share title.
 				// %3$s = share text.
 				// %4$s = share image.
+				'email' => array(
+					'id' => 'email',
+					'title' => 'Email',
+					'url_structure' => 'mailto:example@example.com?subject=%2$s&body=%1$s',
+					'url_after_title' => false,
+				),
 				'facebook' => array(
 					'id' => 'facebook',
 					'title' => 'Facebook',
