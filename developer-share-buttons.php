@@ -384,7 +384,7 @@ if ( ! class_exists( 'DeveloperShareButtons' ) ) {
 		 * @param  string $image   The url of an image to share (only used by some services), defaults to the post thumbnail url.
 		 * @return string|bool     Return the created `a` tag or false if not found
 		 */
-		public static function get_link_html( $service, $url = '', $title = '', $text = '', $image = '' ) {
+		public static function get_link_html( $service, $url = '', $title = '', $text = '', $image = '', $post_id = false ) {
 			$services = static::get_services();
 			if ( $service = $services[ $service ] ) {
 				if ( $service['url_structure'] ) {
@@ -396,6 +396,29 @@ if ( ! class_exists( 'DeveloperShareButtons' ) ) {
 
 					$css_class = static::$slug;
 
+					if(!empty($post_id)){
+						// If the page is not a proper post object fall back to defaults.
+						if ( (get_post_type($post_id) || is_page($post_id)) && get_post() ) {
+							if ( ! $title && ! $url ) {
+								$title = get_the_title($post_id);
+							}
+
+							if ( ! $url ) {
+								$url = get_permalink($post_id);
+							}
+
+							if ( ! $image && $image_id = get_post_thumbnail_id($post_id) ) {
+								$image_object = wp_get_attachment_image_src( $image_id, 'full' );
+								$image = $image_object[0];
+							}
+						} else if ( is_archive() ) {
+							$title = get_the_archive_title();
+							$url = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+						} else {
+							$title = get_bloginfo( 'title' );
+							$url = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+						}
+					}else
 					// If the page is not a proper post object fall back to defaults.
 					if ( is_singular() && get_post() ) {
 						if ( ! $title && ! $url ) {
@@ -451,7 +474,7 @@ if ( ! class_exists( 'DeveloperShareButtons' ) ) {
 		 * @param  string $image    The image url to pass to `get_link_html()`.
 		 * @return string           Html `div` containing all the share links
 		 */
-		public static function get_buttons( $services = false, $url = '', $title = '', $text = '', $image = '' ) {
+		public static function get_buttons( $services = false, $url = '', $title = '', $text = '', $image = '', $post_id = false ) {
 			if ( ! is_array( $services ) || ! $services ) {
 				$options = get_option( static::$slug_ . '_options' );
 
@@ -469,7 +492,7 @@ if ( ! class_exists( 'DeveloperShareButtons' ) ) {
 			$html .= ob_get_clean();
 
 			foreach ( $services as $service ) {
-				if ( $service_html = static::get_link_html( $service, $url, $title, $text, $image ) ) {
+				if ( $service_html = static::get_link_html( $service, $url, $title, $text, $image, $post_id ) ) {
 					$html .= $service_html;
 				}
 			}
@@ -588,8 +611,8 @@ if ( ! class_exists( 'DeveloperShareButtons' ) ) {
 
 	// Set up some wrapper functions for easier access.
 	if ( ! function_exists( 'get_dev_share_buttons' ) ) {
-		function get_dev_share_buttons( $services = false, $url = '', $title = '', $text = '', $image = '' ) {
-			return DeveloperShareButtons::get_buttons( $services, $url, $title, $text, $image );
+		function get_dev_share_buttons( $services = false, $url = '', $title = '', $text = '', $image = '', $post_id = false ) {
+			return DeveloperShareButtons::get_buttons( $services, $url, $title, $text, $image, $post_id );
 		}
 	}
 
