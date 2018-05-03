@@ -32,6 +32,7 @@ There are 4 functions available to use:
 3. title - The title of the item to share. Defaults to the value of `get_the_title()`
 4. text - The text that appears before a service title eg "Share on". Defaults to the value set on the options page.
 5. image - The url of an image to go along with the main item, only used by certain services. Defaults to the post thumbnail.
+6. post_id - The id of the WP post you're referencing, if any, may be left off.
 
 = Are there default styles for this? =
 
